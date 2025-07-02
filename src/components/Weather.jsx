@@ -17,6 +17,9 @@ export const Weather = () => {
                 <input type="text" placeholder='Search' />
                 <img src={search_icon} className="my-icon"  alt="" />
             </div>
+            <img src={sun_icon} alt="" className="weather-icon" />
+            <p className="temperature">16°F</p>
+            <p className='location'>London</p>
         </div>
     )
 }
