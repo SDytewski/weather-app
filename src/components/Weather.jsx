@@ -15,31 +15,32 @@ export const Weather = () => {
         <div className="weather">
             <div className="search-bar">
                 <input type="text" placeholder='Search' />
-                <img src={search_icon} className="my-icon"  alt="" />
+                <img src={search_icon} className="my-icon" alt="" />
             </div>
             <img src={sun_icon} alt="" className="weather-icon" />
             <p className="temperature">16°F</p>
             <p className='location'>London</p>
             <div className="weather-data">
-                    <div className="col">
-                        <img src={sun2_icon} alt=""/>
+                <div className="col">
+                    <img src={sun2_icon} alt="" />
 
-                        <div>
-                            <p>91 %</p>
-                        </div>
-                         <div className="col">
-                        <img src={wind_icon} alt=""/>
+                    <div>
+                        <p>91 %</p>
+                    </div>
+                    <div className="col">
+                        <img src={wind_icon} alt="" />
 
                         <div>
                             <p>3.6 km/h</p>
                             <span>Wind Speed</span>
                         </div>
                     </div>
-            
-            
+
+
+                </div>
             </div>
-        </div>
-    )
+            </div>
+            )
 }
 
-export default Weather
+            export default Weather
