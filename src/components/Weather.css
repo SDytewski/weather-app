@@ -63,3 +63,34 @@
     gap: 12px;
     font-size: 22px;
 }
+
+.weather-data .col span{
+    display: block;
+    font-size: 16px;
+}
+
+.weather-icon {
+    width: 150px;
+    margin: 30px 0;
+
+}
+
+.temperature {
+    color: #fff;
+    font-size: 80px;
+    line-height: 1;
+}
+
+.location {
+    color: #fff;
+    font-size: 40px;
+}
+
+.weather-data .col img {
+    width: 36px;
+    margin-top: 5px;
+}
+
+/* .wind {
+    width: 150px;
+} */

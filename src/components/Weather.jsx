@@ -22,13 +22,14 @@ export const Weather = () => {
             <p className='location'>London</p>
             <div className="weather-data">
                 <div className="col">
-                    <img src={sun2_icon} alt="" />
+                    <img className ="humidity" src={sun2_icon} alt="" />
 
                     <div>
                         <p>91 %</p>
+                        <span>Humidity</span>
                     </div>
                     <div className="col">
-                        <img src={wind_icon} alt="" />
+                        <img  className="wind" src={wind_icon} alt="" />
 
                         <div>
                             <p>3.6 km/h</p>
