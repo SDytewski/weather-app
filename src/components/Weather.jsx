@@ -94,7 +94,7 @@ export const Weather = () => {
                         <img className="wind" src={wind_icon} alt="" />
 
                         <div>
-                            <p>3.6 km/h</p>
+                            <p>{weatherData.windSpeed} km/h</p>
                             <span>Wind Speed</span>
                         </div>
                     </div>
