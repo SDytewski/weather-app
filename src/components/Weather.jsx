@@ -44,10 +44,17 @@ export const Weather = () => {
 
             const response = await fetch(url);
             const data = await response.json();
+
+
+            if(!response.ok){
+
+                alert(data.message);
+                return;
+            }
             console.log(data);
             const icon = allIcons[data.weather[0].icon] || sun_icon;
             setWeatherData({
-                humidity: data.humidity,
+                humidity: data.main.humidity,
                 windSpeed: data.wind.speed,
                 temperature: Math.floor(data.main.temp),
                 location: data.name,
@@ -61,6 +68,8 @@ export const Weather = () => {
 
         })
         } catch (error) {
+            setWeatherData(false);
+            console.error("Error in fetchign weather data")
 
         }
 
@@ -79,10 +88,11 @@ export const Weather = () => {
                 <input ref={inputRef} type="text" placeholder='Search' />
                 <img src={search_icon} className="my-icon" onClick={()=>search(inputRef.current.value)} alt="" />
             </div>
-            <img src={weatherData.icon} alt="" className="weather-icon" />
+            {weatherData?<>
+             <img src={weatherData.icon} alt="" className="weather-icon" />
             <p className="temperature">{weatherData.temperature}°F</p>
-            <p className='location'>{weatherData.location}</p>
-            <div className="weather-data">
+               <p className='location'>{weatherData.location}</p>
+              <div className="weather-data">
                 <div className="col">
                     <img className="humidity" src={sun2_icon} alt="" />
 
@@ -102,6 +112,13 @@ export const Weather = () => {
 
                 </div>
             </div>
+            
+            </>:<></>
+            }
+
+
+           
+         
         </div>
         </div>
     )
