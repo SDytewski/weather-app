@@ -81,7 +81,7 @@ export const Weather = () => {
     }, [])
 
     return (
-        <div><h1>Weather App</h1>
+        <div> <h1  className="title">Weather App</h1>
         <div className="weather">
             
             <div className="search-bar">
