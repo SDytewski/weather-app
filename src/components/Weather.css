@@ -96,6 +96,14 @@
 .title{
     text-align: center;
     margin:20px;
+    font-size: 5rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #0800ff, #4744ff, #5defff);
+  background-clip: text;
+  -webkit-background-clip: text; /* Required for Chrome, Safari */
+  -webkit-text-fill-color: transparent; /* Makes the gradient visible */
+  color: transparent; /* Fallback */
+-webkit-text-stroke: 2px rgb(0, 0, 0); /
 
       
       

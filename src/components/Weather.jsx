@@ -81,12 +81,15 @@ export const Weather = () => {
     }, [])
 
     return (
-        <div> <h1  className="title">Weather App</h1>
+        <div>
+            <h1 className="title">WEATHER APP</h1>
+            
         <div className="weather">
             
+            
             <div className="search-bar">
-                <input ref={inputRef} type="text" placeholder='Search' />
-                <img src={search_icon} className="my-icon" onClick={()=>search(inputRef.current.value)} alt="" />
+                <input ref={inputRef} type="text" placeholder='Search a city' />
+                <img src={search_icon} className="my-icon" onClick={()=>{search(inputRef.current.value); inputRef.current.value = ""; }} alt="" />
             </div>
             {weatherData?<>
              <img src={weatherData.icon} alt="" className="weather-icon" />
