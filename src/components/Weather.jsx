@@ -52,6 +52,8 @@ export const Weather = () => {
                 return;
             }
             console.log(data);
+            console.log(new Date(data.dt*1000+(data.timezone*1000)));
+            // console.log(new Date(obj.dt*1000-(obj.timezone*1000)));
             const icon = allIcons[data.weather[0].icon] || sun_icon;
             setWeatherData({
                 humidity: data.main.humidity,
@@ -85,7 +87,7 @@ export const Weather = () => {
             <h1 className="title">WEATHER APP</h1>
             
         <div className="weather">
-            
+    
             
             <div className="search-bar">
                 <input ref={inputRef} type="text" placeholder='Search a city' />
