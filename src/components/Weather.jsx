@@ -62,17 +62,10 @@ export const Weather = () => {
                 location: data.name,
                 icon: icon
 
-
-
-            
-
-
-
         })
         } catch (error) {
             setWeatherData(false);
             console.error("Error in fetchign weather data")
-
         }
 
     }
