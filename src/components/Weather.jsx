@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './Weather.css'
 import search_icon from '../assets/search.png'
 import cloud_icon from '../assets/cloud.png'
@@ -35,7 +35,7 @@ export const Weather = () => {
 
 
     const search = async (city) => {
-        if( city === '') {
+        if (city === '') {
             alert("Enter City Name");
             return;
         }
@@ -46,13 +46,13 @@ export const Weather = () => {
             const data = await response.json();
 
 
-            if(!response.ok){
+            if (!response.ok) {
 
                 alert(data.message);
                 return;
             }
             console.log(data);
-            console.log(new Date(data.dt*1000+(data.timezone*1000)));
+            console.log(new Date(data.dt * 1000 + (data.timezone * 1000)));
             // console.log(new Date(obj.dt*1000-(obj.timezone*1000)));
             const icon = allIcons[data.weather[0].icon] || sun_icon;
             setWeatherData({
@@ -62,7 +62,7 @@ export const Weather = () => {
                 location: data.name,
                 icon: icon
 
-        })
+            })
         } catch (error) {
             setWeatherData(false);
             console.error("Error in fetchign weather data")
@@ -70,56 +70,71 @@ export const Weather = () => {
 
     }
 
-    useEffect(()=>{ 
+    useEffect(() => {
         search("London");
 
     }, [])
 
     return (
-        <div>
+        <div className="app">
             <h1 className="title">WEATHER APP</h1>
-            
-        <div className="weather">
-    
-            
-            <div className="search-bar">
-                <input ref={inputRef} type="text" placeholder='Search a city' />
-                <img src={search_icon} className="my-icon" onClick={()=>{search(inputRef.current.value); inputRef.current.value = ""; }} alt="" />
-            </div>
-            {weatherData?<>
-             <img src={weatherData.icon} alt="" className="weather-icon" />
-            <p className="temperature">{weatherData.temperature}°F</p>
-               <p className='location'>{weatherData.location}</p>
-              <div className="weather-data">
-                <div className="col">
-                    <img className="humidity" src={sun2_icon} alt="" />
 
-                    <div>
-                        <p>{weatherData.humidity} %</p>
-                        <span>Humidity</span>
-                    </div>
-                    <div className="col">
-                        <img className="wind" src={wind_icon} alt="" />
-
-                        <div>
-                            <p>{weatherData.windSpeed} km/h</p>
-                            <span>Wind Speed</span>
-                        </div>
-                    </div>
+            <div className="weather-card">
 
 
+                <div className="search-bar">
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        placeholder="Search a city"
+                        enterKeyHint="search" // shows "Search" on mobile keyboard
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                search(inputRef.current.value);
+                                inputRef.current.value = ""; // optional: clear input after search
+                            }
+                        }}
+                    />
+                    <img
+                        src={search_icon}
+                        className="my-icon"
+                        onClick={() => {
+                            search(inputRef.current.value);
+                            inputRef.current.value = ""; // optional: clear input after click
+                        }}
+                        alt="Search"
+                    />
                 </div>
+
+                {weatherData && (
+                    <>
+                        <img src={weatherData.icon} alt="" className="weather-icon" />
+                        <p className="temperature">{weatherData.temperature}°F</p>
+                        <p className="location">{weatherData.location}</p>
+
+                        <div className="weather-data">
+                            <div className="col">
+                                <img src={sun2_icon} alt="" />
+                                <div>
+                                    <p>{weatherData.humidity}%</p>
+                                    <span>Humidity</span>
+                                </div>
+                            </div>
+
+                            <div className="col">
+                                <img src={wind_icon} alt="" />
+                                <div>
+                                    <p>{weatherData.windSpeed} km/h</p>
+                                    <span>Wind Speed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
-            
-            </>:<></>
-            }
-
-
-           
-         
         </div>
-        </div>
-    )
+    );
+
 }
 
 export default Weather

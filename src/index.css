@@ -1,23 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-
-*{
-  margin:0;
+* {
+  margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
 
-.app{
-  min-height: 100vh;
-  display: grid;
-  background: #cfddff;
+html, body {
+  height: 100%;
 }
 
-@media screen and (max-width: 768px) {
-    .app {
-        padding: 15px;
-        font-size: 16px;
-    }
+.app {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #194d90; /* replace with any color you want */
+
+  padding: 16px;
+}
+
+@media screen and (min-width: 1024px) {
+  .app {
+    padding-top: 20px;          /* less top padding on desktop = moves content up */
+  }
+
+  .title {
+    margin-top: -150px;          /* optional, nudges the title up slightly */
+  }
+
+  .weather-card {
+    margin-top: 0;              /* moves card up closer to title */
+  }
 }
