@@ -35,4 +35,11 @@ html, body {
   .weather-card {
     margin-top: 0;              /* moves card up closer to title */
   }
+
+  .fox-title {
+    height: 120px;
+    width: 50%;
+    margin-bottom: 140px;
+}
+
 }

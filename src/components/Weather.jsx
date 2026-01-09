@@ -9,6 +9,7 @@ import sun_icon from '../assets/sun.png'
 import thunder_icon from '../assets/thunderstorm.png'
 import sun2_icon from '../assets/sun2.png'
 import wind_icon from '../assets/wind.png'
+import fox from '../assets/fox.jpg'
 
 export const Weather = () => {
 
@@ -77,7 +78,12 @@ export const Weather = () => {
 
     return (
         <div className="app">
-            <h1 className="title">WEATHER APP</h1>
+            
+            <div className="fox-title" >
+                <img className="fox-weather" src={fox} alt="Description of the image" />
+               
+            </div>
+             <h1 className="title">WEATHER APP</h1>
 
             <div className="weather-card">
 

@@ -24,6 +24,12 @@
   margin-bottom: 24px;  
 }
 
+.fox-weather {
+width: 100%;
+height: 80px;
+ 
+}
+
 /* SEARCH */
 .search-bar {
   width: 100%;
