@@ -35,12 +35,22 @@ export const Weather = () => {
     }
 
 
-    const search = async (city) => {
-        if (city === '') {
-            alert("Enter City Name");
+    const search = async (city, state, zip) => {
+
+        let query = ""
+        if (city & state === '' & zip === '') {
+            alert("Enter City, State or zip Code");
             return;
         }
+
+        else if (zip) {
+            query = `${city}, ${state}, USA`;
+
+        }
+
         try {
+            
+            const url2= ``
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${import.meta.env.VITE_APP_ID}`
 
             const response = await fetch(url);
@@ -83,7 +93,7 @@ export const Weather = () => {
                 <img className="fox-weather" src={fox} alt="Description of the image" />
                
             </div>
-             <h1 className="title">WEATHER APP</h1>
+             <h1 className="title">NATIONAL WEATHER APP</h1>
 
             <div className="weather-card">
 
