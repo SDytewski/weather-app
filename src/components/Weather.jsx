@@ -34,7 +34,9 @@ export const Weather = () => {
         "13n": snow_icon
     }
 
-
+    function isZipCode(input) {
+        return /^\d{5}(-\d{4})?$/.test(input.trim());
+    }
     const search = async (city, state, zip) => {
 
         let query = ""
@@ -44,56 +46,64 @@ export const Weather = () => {
         }
 
         else if (zip) {
-            query = `${city}, ${state}, USA`;
+            query = `${zip}, USA`;
 
         }
 
-        try {
-            
-            const url2= ``
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${import.meta.env.VITE_APP_ID}`
+        else {
+            query = `{city}, ${state}, USA`;
 
-            const response = await fetch(url);
-            const data = await response.json();
+        }
 
 
-            if (!response.ok) {
 
-                alert(data.message);
-                return;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            query
+        )}`;
+
+
+        const res = await fetch(url, {
+            headers: {
+                "User-Agent": "your-app-name (your-email@example.com)"
             }
-            console.log(data);
-            console.log(new Date(data.dt * 1000 + (data.timezone * 1000)));
-            // console.log(new Date(obj.dt*1000-(obj.timezone*1000)));
-            const icon = allIcons[data.weather[0].icon] || sun_icon;
-            setWeatherData({
-                humidity: data.main.humidity,
-                windSpeed: data.wind.speed,
-                temperature: Math.floor(data.main.temp),
-                location: data.name,
-                icon: icon
+        });
 
-            })
-        } catch (error) {
-            setWeatherData(false);
-            console.error("Error in fetchign weather data")
+
+        const data = await res.json();
+
+        if (!data.length) {
+            throw new Error("Location not found");
         }
+        return {
+            lat: data[0].lat,
+            lon: data[0].lon
+        };
+
+
+
+
+
+
+        
+
+
+
 
     }
 
-    useEffect(() => {
-        search("London");
+    // useEffect(() => {
+    //     search("London");
 
-    }, [])
+    // }, [])
 
     return (
         <div className="app">
-            
+
             <div className="fox-title" >
                 <img className="fox-weather" src={fox} alt="Description of the image" />
-               
+
             </div>
-             <h1 className="title">NATIONAL WEATHER APP</h1>
+            <h1 className="title">NATIONAL WEATHER APP</h1>
 
             <div className="weather-card">
 
