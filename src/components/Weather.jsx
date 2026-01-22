@@ -11,85 +11,136 @@ import sun2_icon from '../assets/sun2.png'
 import wind_icon from '../assets/wind.png'
 import fox from '../assets/fox.jpg'
 
+
+
+
+// 
+
+
 export const Weather = () => {
+
+   
 
 
     const inputRef = useRef(null);
     const [weatherData, setWeatherData] = useState(false);
 
-    const allIcons = {
-        "01d": sun_icon,
-        "01n": sun_icon,
-        "02d": cloud_icon,
-        "02n": cloud_icon,
-        "03d": cloud_icon,
-        "03n": cloud_icon,
-        "04d": rain_icon,
-        "04n": rain_icon,
-        "09d": rain_icon,
-        "09n": rain_icon,
-        "10d": rain_icon,
-        "10n": rain_icon,
-        "13d": snow_icon,
-        "13n": snow_icon
+
+    // const search = async (input) => {
+
+    //     console.log(input);
+
+    //     const headers = {
+    //         "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
+    //         "Accept": "application/geo+json"
+    //     };
+
+    //     async function fetchJSON(url, customHeaders = headers) {
+    //         const res = await fetch(url, { headers: customHeaders });
+    //         if (!res.ok) throw new Error("Request failed");
+    //         return res.json();
+    //     }
+
+    //     const trimmed = input.trim();
+    //     const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
+
+    //     const query = isZip
+    //         ? `${trimmed}, USA`
+    //         : `${trimmed.split(",")[0]}, ${trimmed.split(",")[1]}, USA`;
+
+    //     const geoData = await fetchJSON(
+    //         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+    //         { "User-Agent": headers["User-Agent"] }
+    //     );
+
+    //     const { lat, lon } = geoData[0];
+
+    //     const points = await fetchJSON(
+    //         `https://api.weather.gov/points/${lat},${lon}`
+    //     );
+
+    //     const forecast = await fetchJSON(points.properties.forecast);
+    //     return forecast.properties.periods;
+
+    //         setWeatherData({
+    //   temperature: period.temperature,
+    //   windSpeed: period.windSpeed,
+    //   icon: period.icon,
+    //   description: period.shortForecast,
+    //   location: trimmed,
+    //   humidity
+    // });
+
+
+    // }
+
+
+const search = async (input) => {
+
+    console.log(weatherData)
+  try {
+    const headers = {
+      "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
+      "Accept": "application/geo+json"
+    };
+
+    async function fetchJSON(url, customHeaders = headers) {
+      const res = await fetch(url, { headers: customHeaders });
+      if (!res.ok) throw new Error("Request failed");
+      return res.json();
     }
 
-    function isZipCode(input) {
-        return /^\d{5}(-\d{4})?$/.test(input.trim());
-    }
-    const search = async (city, state, zip) => {
+    const trimmed = input.trim();
+    if (!trimmed) return;
 
-        let query = ""
-        if (city & state === '' & zip === '') {
-            alert("Enter City, State or zip Code");
-            return;
-        }
+    const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
 
-        else if (zip) {
-            query = `${zip}, USA`;
+    const query = isZip
+      ? `${trimmed}, USA`
+      : `${trimmed.split(",")[0]}, ${trimmed.split(",")[1]}, USA`;
 
-        }
+    const geoData = await fetchJSON(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+      { "User-Agent": headers["User-Agent"] }
+    );
 
-        else {
-            query = `{city}, ${state}, USA`;
+    if (!geoData.length) throw new Error("Location not found");
 
-        }
+    const { lat, lon } = geoData[0];
 
+    const points = await fetchJSON(
+      `https://api.weather.gov/points/${lat},${lon}`
+    );
 
+    const forecast = await fetchJSON(points.properties.forecast);
+    const period = forecast.properties.periods[0];
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            query
-        )}`;
+    // OPTIONAL: grid data for humidity
+    const gridData = await fetchJSON(
+      points.properties.forecastGridData
+    );
 
+    const humidity =
+      gridData.properties.relativeHumidity.values[0]?.value;
 
-        const res = await fetch(url, {
-            headers: {
-                "User-Agent": "your-app-name (your-email@example.com)"
-            }
-        });
+    setWeatherData({
+      temperature: period.temperature,
+      windSpeed: period.windSpeed,
+      icon: period.icon,
+      description: period.shortForecast,
+      location: trimmed,
+      humidity
+    });
 
-
-        const data = await res.json();
-
-        if (!data.length) {
-            throw new Error("Location not found");
-        }
-        return {
-            lat: data[0].lat,
-            lon: data[0].lon
-        };
-
-
-
-
-
-
-        
+  } catch (err) {
+    console.error(err);
+    setWeatherData(false);
+  }
+};
 
 
 
 
-    }
 
     // useEffect(() => {
     //     search("London");
@@ -116,7 +167,7 @@ export const Weather = () => {
                         enterKeyHint="search" // shows "Search" on mobile keyboard
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                                search(inputRef.current.value);
+                                search(inputRef.current.value);        
                                 inputRef.current.value = ""; // optional: clear input after search
                             }
                         }}
