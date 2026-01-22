@@ -19,12 +19,12 @@ import fox from '../assets/fox.jpg'
 
 export const Weather = () => {
 
-   
+
 
 
     const inputRef = useRef(null);
     const [weatherData, setWeatherData] = useState(false);
-
+    const [error, setError] = useState();
 
     // const search = async (input) => {
 
@@ -75,77 +75,78 @@ export const Weather = () => {
     // }
 
 
-const search = async (input) => {
+    const search = async (input) => {
 
-    console.log(weatherData)
-  try {
-    const headers = {
-      "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
-      "Accept": "application/geo+json"
+        console.log(weatherData)
+        try {
+            const headers = {
+                "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
+                "Accept": "application/geo+json"
+            };
+
+            async function fetchJSON(url, customHeaders = headers) {
+                const res = await fetch(url, { headers: customHeaders });
+                if (!res.ok) throw new Error("Request failed");
+                return res.json();
+            }
+
+            const trimmed = input.trim();
+            if (!trimmed) return;
+
+            const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
+
+            const query = isZip
+                ? `${trimmed}, USA`
+                : `${trimmed.split(",")[0]}, ${trimmed.split(",")[1]}, USA`;
+
+            const geoData = await fetchJSON(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+                { "User-Agent": headers["User-Agent"] }
+            );
+
+            if (!geoData.length) throw new Error("Location not found");
+
+
+            const { lat, lon } = geoData[0];
+
+            const points = await fetchJSON(
+                `https://api.weather.gov/points/${lat},${lon}`
+            );
+
+            const forecast = await fetchJSON(points.properties.forecast);
+            const period = forecast.properties.periods[0];
+
+            // OPTIONAL: grid data for humidity
+            const gridData = await fetchJSON(
+                points.properties.forecastGridData
+            );
+
+            const humidity =
+                gridData.properties.relativeHumidity.values[0]?.value;
+
+            setWeatherData({
+                temperature: period.temperature,
+                windSpeed: period.windSpeed,
+                icon: period.icon,
+                description: period.shortForecast,
+                location: trimmed,
+                humidity
+            });
+
+        } catch (err) {
+            console.error(err);
+            setWeatherData(false);
+        }
     };
 
-    async function fetchJSON(url, customHeaders = headers) {
-      const res = await fetch(url, { headers: customHeaders });
-      if (!res.ok) throw new Error("Request failed");
-      return res.json();
-    }
-
-    const trimmed = input.trim();
-    if (!trimmed) return;
-
-    const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
-
-    const query = isZip
-      ? `${trimmed}, USA`
-      : `${trimmed.split(",")[0]}, ${trimmed.split(",")[1]}, USA`;
-
-    const geoData = await fetchJSON(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
-      { "User-Agent": headers["User-Agent"] }
-    );
-
-    if (!geoData.length) throw new Error("Location not found");
-
-    const { lat, lon } = geoData[0];
-
-    const points = await fetchJSON(
-      `https://api.weather.gov/points/${lat},${lon}`
-    );
-
-    const forecast = await fetchJSON(points.properties.forecast);
-    const period = forecast.properties.periods[0];
-
-    // OPTIONAL: grid data for humidity
-    const gridData = await fetchJSON(
-      points.properties.forecastGridData
-    );
-
-    const humidity =
-      gridData.properties.relativeHumidity.values[0]?.value;
-
-    setWeatherData({
-      temperature: period.temperature,
-      windSpeed: period.windSpeed,
-      icon: period.icon,
-      description: period.shortForecast,
-      location: trimmed,
-      humidity
-    });
-
-  } catch (err) {
-    console.error(err);
-    setWeatherData(false);
-  }
-};
 
 
 
 
+    useEffect(() => {
+        search("los angeles, ca");
 
-    // useEffect(() => {
-    //     search("London");
-
-    // }, [])
+    }, [])
 
     return (
         <div className="app">
@@ -157,6 +158,7 @@ const search = async (input) => {
             <h1 className="title">NATIONAL WEATHER APP</h1>
 
             <div className="weather-card">
+                <div className="error-message"></div>
 
 
                 <div className="search-bar">
@@ -167,7 +169,7 @@ const search = async (input) => {
                         enterKeyHint="search" // shows "Search" on mobile keyboard
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                                search(inputRef.current.value);        
+                                search(inputRef.current.value);
                                 inputRef.current.value = ""; // optional: clear input after search
                             }
                         }}
@@ -182,32 +184,35 @@ const search = async (input) => {
                         alt="Search"
                     />
                 </div>
+                <div>
+                    {weatherData == '' ? <>COULD NOT FIND LOCATION</>
 
-                {weatherData && (
-                    <>
-                        <img src={weatherData.icon} alt="" className="weather-icon" />
-                        <p className="temperature">{weatherData.temperature}°F</p>
-                        <p className="location">{weatherData.location}</p>
+                        :
+                        <>
+                            <img src={weatherData.icon} alt="" className="weather-icon" />
+                            <p className="temperature">{weatherData.temperature}°F</p>
+                            <p className="location">{weatherData.location}</p>
 
-                        <div className="weather-data">
-                            <div className="col">
-                                <img src={sun2_icon} alt="" />
-                                <div>
-                                    <p>{weatherData.humidity}%</p>
-                                    <span>Humidity</span>
+                            <div className="weather-data">
+                                <div className="col">
+                                    <img src={sun2_icon} alt="" />
+                                    <div>
+                                        <p>{weatherData.humidity}%</p>
+                                        <span>Humidity</span>
+                                    </div>
+                                </div>
+
+                                <div className="col">
+                                    <img src={wind_icon} alt="" />
+                                    <div>
+                                        <p>{weatherData.windSpeed} km/h</p>
+                                        <span>Wind Speed</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div className="col">
-                                <img src={wind_icon} alt="" />
-                                <div>
-                                    <p>{weatherData.windSpeed} km/h</p>
-                                    <span>Wind Speed</span>
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )}
+                        </>
+                    }
+                </div>
             </div>
         </div>
     );
