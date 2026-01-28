@@ -38,9 +38,19 @@ html, body {
 
   .fox-title {
     height: 120px;
-    height: 90%;
+    height: 200px;
     width: 50%;
-    margin-bottom: 140px;
+    margin-bottom: 100px;
+
 }
+
+
+
+
+ .fox-weather {
+  margin-top: 10px;
+  height: 120px !important;
+  /* padding-bottom: 10px; */
+ }
 
 }

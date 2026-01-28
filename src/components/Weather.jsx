@@ -10,6 +10,7 @@ import thunder_icon from '../assets/thunderstorm.png'
 import sun2_icon from '../assets/sun2.png'
 import wind_icon from '../assets/wind.png'
 import fox from '../assets/fox.jpg'
+import humidity_icon from '../assets/humidity.png'
 
 
 
@@ -184,9 +185,8 @@ export const Weather = () => {
                         alt="Search"
                     />
                 </div>
-                <div>
+                <div className="items">
                     {weatherData == '' ? <>COULD NOT FIND LOCATION</>
-
                         :
                         <>
                             <img src={weatherData.icon} alt="" className="weather-icon" />
@@ -195,7 +195,7 @@ export const Weather = () => {
 
                             <div className="weather-data">
                                 <div className="col">
-                                    <img src={sun2_icon} alt="" />
+                                    <img src={humidity_icon} alt="" />
                                     <div>
                                         <p>{weatherData.humidity}%</p>
                                         <span>Humidity</span>
@@ -205,7 +205,7 @@ export const Weather = () => {
                                 <div className="col">
                                     <img src={wind_icon} alt="" />
                                     <div>
-                                        <p>{weatherData.windSpeed} km/h</p>
+                                        <p>{weatherData.windSpeed}</p>
                                         <span>Wind Speed</span>
                                     </div>
                                 </div>

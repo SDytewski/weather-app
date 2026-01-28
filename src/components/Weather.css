@@ -26,7 +26,7 @@
 
 .fox-weather {
 width: 100%;
-height: 80px;
+height: 90px;
  
 }
 
@@ -60,9 +60,20 @@ height: 80px;
 }
 
 /* WEATHER INFO */
+
+.items {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .weather-icon {
-  width: 110px;
-  margin: 12px 0;
+  width: 50%;
+  height: 100%;
+  /* margin: 12px 0; */
+  border-radius: 50%;
+  margin-bottom: 10px;
+
 }
 
 .temperature {
