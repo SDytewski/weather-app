@@ -166,7 +166,7 @@ export const Weather = () => {
                     <input
                         ref={inputRef}
                         type="text"
-                        placeholder="Search a city"
+                        placeholder="Search a city, st or zip"
                         enterKeyHint="search" // shows "Search" on mobile keyboard
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
