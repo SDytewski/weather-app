@@ -116,6 +116,13 @@ height: 90px;
 }
 
 
-/* .wind {
-    width: 150px;
-} */
+/* ERROR */
+
+.error {
+  font-weight: 500;
+  background-color: #ff2a2a;
+  padding: 10px;
+  border-color: black;
+  border-style: solid;
+  border-width: 2px; /* Sets the thickness */
+}

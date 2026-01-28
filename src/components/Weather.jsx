@@ -25,8 +25,8 @@ export const Weather = () => {
 
     const inputRef = useRef(null);
     const [weatherData, setWeatherData] = useState(false);
-    const [error, setError] = useState();
-
+    const [message, setMessage] = useState('');
+    let content;
     // const search = async (input) => {
 
     //     console.log(input);
@@ -105,7 +105,11 @@ export const Weather = () => {
                 { "User-Agent": headers["User-Agent"] }
             );
 
-            if (!geoData.length) throw new Error("Location not found");
+            if (!geoData.length) { 
+                setMessage('Location not found');
+                setWeatherData(false);
+                return
+            };
 
 
             const { lat, lon } = geoData[0];
@@ -133,6 +137,7 @@ export const Weather = () => {
                 location: trimmed,
                 humidity
             });
+            setMessage('');
 
         } catch (err) {
             console.error(err);
@@ -145,7 +150,7 @@ export const Weather = () => {
 
 
     useEffect(() => {
-        search("los angeles, ca");
+        setMessage("Search a place to see the weather");
 
     }, [])
 
@@ -166,7 +171,7 @@ export const Weather = () => {
                     <input
                         ref={inputRef}
                         type="text"
-                        placeholder="Search a city, st or zip"
+                        placeholder="Search city, st or zip"
                         enterKeyHint="search" // shows "Search" on mobile keyboard
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -186,31 +191,43 @@ export const Weather = () => {
                     />
                 </div>
                 <div className="items">
-                    {weatherData == '' ? <>COULD NOT FIND LOCATION</>
-                        :
-                        <>
-                            <img src={weatherData.icon} alt="" className="weather-icon" />
-                            <p className="temperature">{weatherData.temperature}°F</p>
-                            <p className="location">{weatherData.location}</p>
 
-                            <div className="weather-data">
-                                <div className="col">
-                                    <img src={humidity_icon} alt="" />
-                                    <div>
-                                        <p>{weatherData.humidity}%</p>
-                                        <span>Humidity</span>
-                                    </div>
-                                </div>
+                    {
+                        message === "Search a place to see the weather" ? (
+                            <h1>{message}</h1>
 
-                                <div className="col">
-                                    <img src={wind_icon} alt="" />
-                                    <div>
-                                        <p>{weatherData.windSpeed}</p>
-                                        <span>Wind Speed</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </>
+                        )
+                            :
+
+                            message === "Location not found" ? (<div className="error">COULD NOT FIND LOCATION </div>)
+
+                                : weatherData ?
+                                (
+
+                                    <>
+                                        <img src={weatherData.icon} alt="" className="weather-icon" />
+                                        <p className="temperature">{weatherData.temperature}°F</p>
+                                        <p className="location">{weatherData.location}</p>
+
+                                        <div className="weather-data">
+                                            <div className="col">
+                                                <img src={humidity_icon} alt="" />
+                                                <div>
+                                                    <p>{weatherData.humidity}%</p>
+                                                    <span>Humidity</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="col">
+                                                <img src={wind_icon} alt="" />
+                                                <div>
+                                                    <p>{weatherData.windSpeed}</p>
+                                                    <span>Wind Speed</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : null
                     }
                 </div>
             </div>
