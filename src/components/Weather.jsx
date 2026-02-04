@@ -26,6 +26,7 @@ export const Weather = () => {
     const inputRef = useRef(null);
     const [weatherData, setWeatherData] = useState(false);
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     let content;
     // const search = async (input) => {
 
@@ -77,6 +78,8 @@ export const Weather = () => {
 
 
     const search = async (input) => {
+
+        setLoading(true);
 
         console.log(weatherData)
         try {
