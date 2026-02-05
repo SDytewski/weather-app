@@ -95,6 +95,7 @@ export const Weather = () => {
             }
 
             const trimmed = input.trim();
+            // setLoading(true)
             if (!trimmed) return;
 
             const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
