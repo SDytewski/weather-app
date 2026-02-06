@@ -11,114 +11,117 @@ export const Weather = () => {
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
 
-    const search = async (input) => {
-        setLoading(true);
+const search = async (input) => {
+    setLoading(true);
 
-        try {
-            const headers = {
-                "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
-                "Accept": "application/geo+json"
-            };
+    try {
+        const headers = {
+            "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
+            "Accept": "application/geo+json"
+        };
 
-            async function fetchJSON(url, customHeaders = headers) {
-                const res = await fetch(url, { headers: customHeaders });
-                if (!res.ok) throw new Error("Request failed");
-                return res.json();
-            }
+        async function fetchJSON(url, customHeaders = headers) {
+            const res = await fetch(url, { headers: customHeaders });
+            if (!res.ok) throw new Error("Request failed");
+            return res.json();
+        }
 
-            const trimmed = input.trim();
-            if (!trimmed) return;
+        // trimming input
+        const trimmed = input.trim();
+        if (!trimmed) return;
 
-            const parts = trimmed.replace(",", " ").split(" ").filter(Boolean);
-            let city, state;
+        const parts = trimmed.replace(",", " ").split(" ").filter(Boolean);
+        let city, state;
 
-            if (parts.length === 1) {
-                city = parts[0];
-                state = "";
-            } else {
-                state = parts[parts.length - 1];
-                city = parts.slice(0, parts.length - 1).join(" ");
-            }
+        if (parts.length === 1) {
+            city = parts[0];
+            state = "";
+        } else {
+            state = parts[parts.length - 1];
+            city = parts.slice(0, parts.length - 1).join(" ");
+        }
 
-            const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
-            const query = state ? `${city}, ${state}, USA` : `${city}, USA`;
+        const query = state ? `${city}, ${state}, USA` : `${city}, USA`;
 
-            const geoData = await fetchJSON(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
-                { "User-Agent": headers["User-Agent"] }
-            );
+        // Get coordinates
+        const geoData = await fetchJSON(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+            { "User-Agent": headers["User-Agent"] }
+        );
 
-            if (!geoData.length) {
-                setMessage("Location not found");
-                setWeatherData(false);
-                return;
-            }
+        if (!geoData.length) {
+            setMessage("Location not found");
+            setWeatherData(false);
+            return;
+        }
 
-            const { lat, lon } = geoData[0];
-
-            const points = await fetchJSON(
-                `https://api.weather.gov/points/${lat},${lon}`
-            );
-
-            const forecast = await fetchJSON(points.properties.forecast);
-            const period = forecast.properties.periods[0]; // first period of forecast
-
-            const stationsData = await fetchJSON(points.properties.observationStations);
-
-
-            if (!stationsData.features.length) {
-                setMessage("No nearby stations found");
-                setWeatherData(false);
-                return;
-            }
+        const { lat, lon } = geoData[0];
 
   
-            let latestObs = null;
-            for (const station of stationsData.features) {
-                try {
-                    const obs = await fetchJSON(`${station.id}/observations/latest`);
-                    if (obs.properties.temperature.value !== null) {
-                        latestObs = obs;
-                        break;
-                    }
-                } catch {
-                    continue;
-                }
-            }
+        const stationsData = await fetchJSON(
+            `https://api.weather.gov/points/${lat},${lon}/stations`
+        );
 
-            if (!latestObs) {
-                setMessage("No current weather data available");
-                setWeatherData(false);
-                return;
-            }
-
-            const tempC = latestObs.properties.temperature.value;
-            const tempF = tempC !== null ? Math.round((tempC * 9 / 5) + 32) : null;
-
-            const humidity = latestObs.properties.relativeHumidity.value !== null
-                ? Math.round(latestObs.properties.relativeHumidity.value)
-                : null;
-
-            // 4️⃣ Update state
-            setWeatherData({
-                temperature: tempF,           // current temperature
-                windSpeed: period.windSpeed,  // keep forecast wind
-                icon: period.icon,            // keep forecast icon
-                description: period.shortForecast, // keep forecast description
-                location: trimmed.toUpperCase(),
-                humidity                       // rounded current humidity
-            });
-
-            setMessage("");
-
-        } catch (err) {
-            console.error(err);
+        if (!stationsData.features.length) {
+            setMessage("No nearby stations found");
             setWeatherData(false);
-            setMessage("Error fetching weather");
-        } finally {
-            setLoading(false);
+            return;
         }
-    };
+
+
+        let latestObs = null;
+        for (const station of stationsData.features) {
+            try {
+                const obs = await fetchJSON(`${station.id}/observations/latest`);
+                if (obs.properties.temperature.value !== null) {
+                    latestObs = obs;
+                    break;
+                }
+            } catch (err) {
+                continue;
+            }
+        }
+
+        if (!latestObs) {
+            setMessage("No current weather data available");
+            setWeatherData(false);
+            return;
+        }
+
+        const tempC = latestObs.properties.temperature.value;
+        const tempF = Math.round((tempC * 9 / 5) + 32);
+
+        const windMps = latestObs.properties.windSpeed.value;
+        const windMph = windMps !== null ? Math.floor(windMps * 2.237) : null; // floor to match NWS
+
+        const humidity = latestObs.properties.relativeHumidity.value !== null
+            ? Math.round(latestObs.properties.relativeHumidity.value)
+            : null;
+
+
+        const points = await fetchJSON(`https://api.weather.gov/points/${lat},${lon}`);
+        const forecast = await fetchJSON(points.properties.forecast);
+        const period = forecast.properties.periods[0];
+
+        setWeatherData({
+            temperature: tempF,
+            windSpeed: windMph,
+            icon: period.icon,  // keeps your previous icons
+            description: period.shortForecast,
+            location: trimmed.toUpperCase(),
+            humidity
+        });
+
+        setMessage("");
+
+    } catch (err) {
+        console.error(err);
+        setWeatherData(false);
+        setMessage("Error fetching weather");
+    } finally {
+        setLoading(false);
+    }
+};
 
 
     useEffect(() => {
