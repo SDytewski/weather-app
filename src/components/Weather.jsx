@@ -83,6 +83,9 @@ export const Weather = () => {
 
         console.log(weatherData)
         try {
+
+
+
             const headers = {
                 "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
                 "Accept": "application/geo+json"
@@ -95,7 +98,6 @@ export const Weather = () => {
             }
 
             const trimmed = input.trim();
-            // setLoading(true)
             if (!trimmed) return;
 
             const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
@@ -109,7 +111,7 @@ export const Weather = () => {
                 { "User-Agent": headers["User-Agent"] }
             );
 
-            if (!geoData.length) { 
+            if (!geoData.length) {
                 setMessage('Location not found');
                 setWeatherData(false);
                 return
@@ -146,20 +148,27 @@ export const Weather = () => {
         } catch (err) {
             console.error(err);
             setWeatherData(false);
+        } finally {
+            setLoading(false)
+
         }
+
+
     };
-
-
-
-
 
     useEffect(() => {
         setMessage("Search a place to see the weather");
 
     }, [])
 
+
     return (
         <div className="app">
+            {loading && (
+                <div className="loader-overlay">
+                    <div className="spinner"></div>
+                </div>
+            )}
 
             <div className="fox-title" >
                 <img className="fox-weather" src={fox} alt="Description of the image" />
@@ -175,12 +184,13 @@ export const Weather = () => {
                     <input
                         ref={inputRef}
                         type="text"
-                        placeholder="Search city, st or zip"
+                        placeholder="City, state code or zip"
                         enterKeyHint="search" // shows "Search" on mobile keyboard
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
                                 search(inputRef.current.value);
                                 inputRef.current.value = ""; // optional: clear input after search
+
                             }
                         }}
                     />
@@ -195,48 +205,49 @@ export const Weather = () => {
                     />
                 </div>
                 <div className="items">
-
                     {
                         message === "Search a place to see the weather" ? (
-                            <h1>{message}</h1>
+                            <h4>{message}</h4>
 
                         )
                             :
-
                             message === "Location not found" ? (<div className="error">COULD NOT FIND LOCATION </div>)
 
                                 : weatherData ?
-                                (
+                                    (
 
-                                    <>
-                                        <img src={weatherData.icon} alt="" className="weather-icon" />
-                                        <p className="temperature">{weatherData.temperature}°F</p>
-                                        <p className="location">{weatherData.location}</p>
+                                        <>
+                                            <img src={weatherData.icon} alt="" className="weather-icon" />
+                                            <p className="temperature">{weatherData.temperature}°F</p>
+                                            <p className="location">{weatherData.location}</p>
 
-                                        <div className="weather-data">
-                                            <div className="col">
-                                                <img src={humidity_icon} alt="" />
-                                                <div>
-                                                    <p>{weatherData.humidity}%</p>
-                                                    <span>Humidity</span>
+                                            <div className="weather-data">
+                                                <div className="col">
+                                                    <img src={humidity_icon} alt="" />
+                                                    <div>
+                                                        <p>{weatherData.humidity}%</p>
+                                                        <span>Humidity</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="col">
+                                                    <img src={wind_icon} alt="" />
+                                                    <div>
+                                                        <p>{weatherData.windSpeed}</p>
+                                                        <span>Wind Speed</span>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        </>
+                                    ) : null
 
-                                            <div className="col">
-                                                <img src={wind_icon} alt="" />
-                                                <div>
-                                                    <p>{weatherData.windSpeed}</p>
-                                                    <span>Wind Speed</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : null
                     }
+
                 </div>
             </div>
         </div>
     );
+
 
 }
 
