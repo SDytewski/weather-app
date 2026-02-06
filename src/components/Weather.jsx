@@ -28,53 +28,7 @@ export const Weather = () => {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     let content;
-    // const search = async (input) => {
 
-    //     console.log(input);
-
-    //     const headers = {
-    //         "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
-    //         "Accept": "application/geo+json"
-    //     };
-
-    //     async function fetchJSON(url, customHeaders = headers) {
-    //         const res = await fetch(url, { headers: customHeaders });
-    //         if (!res.ok) throw new Error("Request failed");
-    //         return res.json();
-    //     }
-
-    //     const trimmed = input.trim();
-    //     const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
-
-    //     const query = isZip
-    //         ? `${trimmed}, USA`
-    //         : `${trimmed.split(",")[0]}, ${trimmed.split(",")[1]}, USA`;
-
-    //     const geoData = await fetchJSON(
-    //         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
-    //         { "User-Agent": headers["User-Agent"] }
-    //     );
-
-    //     const { lat, lon } = geoData[0];
-
-    //     const points = await fetchJSON(
-    //         `https://api.weather.gov/points/${lat},${lon}`
-    //     );
-
-    //     const forecast = await fetchJSON(points.properties.forecast);
-    //     return forecast.properties.periods;
-
-    //         setWeatherData({
-    //   temperature: period.temperature,
-    //   windSpeed: period.windSpeed,
-    //   icon: period.icon,
-    //   description: period.shortForecast,
-    //   location: trimmed,
-    //   humidity
-    // });
-
-
-    // }
 
 
     const search = async (input) => {
@@ -99,12 +53,20 @@ export const Weather = () => {
 
             const trimmed = input.trim();
             if (!trimmed) return;
+            const parts = trimmed.replace(",", " ").split(" ").filter(Boolean);
+            let city, state;
+
+            if (parts.length === 1) {
+                city = parts[0];
+                state = ""; // optional fallback
+            } else {
+                state = parts[parts.length - 1];
+                city = parts.slice(0, parts.length - 1).join(" ");
+            }
 
             const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
 
-            const query = isZip
-                ? `${trimmed}, USA`
-                : `${trimmed.split(",")[0]}, ${trimmed.split(",")[1]}, USA`;
+            const query = state ? `${city}, ${state}, USA` : `${city}, USA`;
 
             const geoData = await fetchJSON(
                 `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
