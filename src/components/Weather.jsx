@@ -1,45 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './Weather.css'
 import search_icon from '../assets/search.png'
-import cloud_icon from '../assets/cloud.png'
-import cloudy_icon from '../assets/cloudy.png'
-import rain_icon from '../assets/rainy-day.png'
-import snow_icon from '../assets/snowflake.png'
-import sun_icon from '../assets/sun.png'
-import thunder_icon from '../assets/thunderstorm.png'
-import sun2_icon from '../assets/sun2.png'
-import wind_icon from '../assets/wind.png'
 import fox from '../assets/fox.jpg'
 import humidity_icon from '../assets/humidity.png'
-
-
-
-
-// 
-
+import wind_icon from '../assets/wind.png'
 
 export const Weather = () => {
-
-
-
-
-    const inputRef = useRef(null);
-    const [weatherData, setWeatherData] = useState(false);
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
-    let content;
-
-
+    const inputRef = useRef(null)
+    const [weatherData, setWeatherData] = useState(false)
+    const [message, setMessage] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const search = async (input) => {
-
         setLoading(true);
 
-        console.log(weatherData)
         try {
-
-
-
             const headers = {
                 "User-Agent": "Weather-app (sdytewski+test@gmail.com)",
                 "Accept": "application/geo+json"
@@ -53,19 +28,19 @@ export const Weather = () => {
 
             const trimmed = input.trim();
             if (!trimmed) return;
+
             const parts = trimmed.replace(",", " ").split(" ").filter(Boolean);
             let city, state;
 
             if (parts.length === 1) {
                 city = parts[0];
-                state = ""; // optional fallback
+                state = "";
             } else {
                 state = parts[parts.length - 1];
                 city = parts.slice(0, parts.length - 1).join(" ");
             }
 
             const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
-
             const query = state ? `${city}, ${state}, USA` : `${city}, USA`;
 
             const geoData = await fetchJSON(
@@ -74,11 +49,10 @@ export const Weather = () => {
             );
 
             if (!geoData.length) {
-                setMessage('Location not found');
+                setMessage("Location not found");
                 setWeatherData(false);
-                return
-            };
-
+                return;
+            }
 
             const { lat, lon } = geoData[0];
 
@@ -87,42 +61,69 @@ export const Weather = () => {
             );
 
             const forecast = await fetchJSON(points.properties.forecast);
-            const period = forecast.properties.periods[0];
+            const period = forecast.properties.periods[0]; // first period of forecast
 
-            // OPTIONAL: grid data for humidity
-            const gridData = await fetchJSON(
-                points.properties.forecastGridData
-            );
+            const stationsData = await fetchJSON(points.properties.observationStations);
 
-            const humidity =
-                gridData.properties.relativeHumidity.values[0]?.value;
 
+            if (!stationsData.features.length) {
+                setMessage("No nearby stations found");
+                setWeatherData(false);
+                return;
+            }
+
+  
+            let latestObs = null;
+            for (const station of stationsData.features) {
+                try {
+                    const obs = await fetchJSON(`${station.id}/observations/latest`);
+                    if (obs.properties.temperature.value !== null) {
+                        latestObs = obs;
+                        break;
+                    }
+                } catch {
+                    continue;
+                }
+            }
+
+            if (!latestObs) {
+                setMessage("No current weather data available");
+                setWeatherData(false);
+                return;
+            }
+
+            const tempC = latestObs.properties.temperature.value;
+            const tempF = tempC !== null ? Math.round((tempC * 9 / 5) + 32) : null;
+
+            const humidity = latestObs.properties.relativeHumidity.value !== null
+                ? Math.round(latestObs.properties.relativeHumidity.value)
+                : null;
+
+            // 4️⃣ Update state
             setWeatherData({
-                temperature: period.temperature,
-                windSpeed: period.windSpeed,
-                icon: period.icon,
-                description: period.shortForecast,
+                temperature: tempF,           // current temperature
+                windSpeed: period.windSpeed,  // keep forecast wind
+                icon: period.icon,            // keep forecast icon
+                description: period.shortForecast, // keep forecast description
                 location: trimmed.toUpperCase(),
-                humidity
+                humidity                       // rounded current humidity
             });
-            setMessage('');
+
+            setMessage("");
 
         } catch (err) {
             console.error(err);
             setWeatherData(false);
+            setMessage("Error fetching weather");
         } finally {
-            setLoading(false)
-
+            setLoading(false);
         }
-
-
     };
 
+
     useEffect(() => {
-        setMessage("Search a place to see the weather");
-
+        setMessage("Search a place to see the weather")
     }, [])
-
 
     return (
         <div className="app">
@@ -132,27 +133,24 @@ export const Weather = () => {
                 </div>
             )}
 
-            <div className="fox-title" >
-                <img className="fox-weather" src={fox} alt="Description of the image" />
-
+            <div className="fox-title">
+                <img className="fox-weather" src={fox} alt="Fox" />
             </div>
             <h1 className="title">NATIONAL WEATHER APP</h1>
 
             <div className="weather-card">
                 <div className="error-message"></div>
 
-
                 <div className="search-bar">
                     <input
                         ref={inputRef}
                         type="text"
                         placeholder="City, state code or zip"
-                        enterKeyHint="search" // shows "Search" on mobile keyboard
+                        enterKeyHint="search"
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                                search(inputRef.current.value);
-                                inputRef.current.value = ""; // optional: clear input after search
-
+                                search(inputRef.current.value)
+                                inputRef.current.value = ""
                             }
                         }}
                     />
@@ -160,58 +158,48 @@ export const Weather = () => {
                         src={search_icon}
                         className="my-icon"
                         onClick={() => {
-                            search(inputRef.current.value);
-                            inputRef.current.value = ""; // optional: clear input after click
+                            search(inputRef.current.value)
+                            inputRef.current.value = ""
                         }}
                         alt="Search"
                     />
                 </div>
+
                 <div className="items">
-                    {
-                        message === "Search a place to see the weather" ? (
-                            <h4>{message}</h4>
+                    {message === "Search a place to see the weather" ? (
+                        <h4>{message}</h4>
+                    ) : message === "Location not found" ? (
+                        <div className="error">COULD NOT FIND LOCATION</div>
+                    ) : weatherData ? (
+                        <>
+                            <img src={weatherData.icon} alt="" className="weather-icon" />
+                            <p className="temperature">{weatherData.temperature}°F</p>
+                            <p className="description">"{weatherData.description}"</p>
+                            <p className="location">{weatherData.location}</p>
 
-                        )
-                            :
-                            message === "Location not found" ? (<div className="error">COULD NOT FIND LOCATION </div>)
+                            <div className="weather-data">
+                                <div className="col">
+                                    <img src={humidity_icon} alt="" />
+                                    <div>
+                                        <p>{weatherData.humidity}%</p>
+                                        <span>Humidity</span>
+                                    </div>
+                                </div>
 
-                                : weatherData ?
-                                    (
-
-                                        <>
-                                            <img src={weatherData.icon} alt="" className="weather-icon" />
-                                            <p className="temperature">{weatherData.temperature}°F</p>
-                                            <p className="description">"{weatherData.description}"</p>
-                                            <p className="location">{weatherData.location}</p>
-
-                                            <div className="weather-data">
-                                                <div className="col">
-                                                    <img src={humidity_icon} alt="" />
-                                                    <div>
-                                                        <p>{weatherData.humidity}%</p>
-                                                        <span>Humidity</span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="col">
-                                                    <img src={wind_icon} alt="" />
-                                                    <div>
-                                                        <p>{weatherData.windSpeed}</p>
-                                                        <span>Wind Speed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </>
-                                    ) : null
-
-                    }
-
+                                <div className="col">
+                                    <img src={wind_icon} alt="" />
+                                    <div>
+                                        <p>{weatherData.windSpeed}</p>
+                                        <span>Wind Speed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    ) : null}
                 </div>
             </div>
         </div>
-    );
-
-
+    )
 }
 
 export default Weather
