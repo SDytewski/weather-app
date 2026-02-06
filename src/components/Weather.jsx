@@ -140,7 +140,7 @@ export const Weather = () => {
                 windSpeed: period.windSpeed,
                 icon: period.icon,
                 description: period.shortForecast,
-                location: trimmed,
+                location: trimmed.toUpperCase(),
                 humidity
             });
             setMessage('');
@@ -219,6 +219,7 @@ export const Weather = () => {
                                         <>
                                             <img src={weatherData.icon} alt="" className="weather-icon" />
                                             <p className="temperature">{weatherData.temperature}°F</p>
+                                            <p className="description">"{weatherData.description}"</p>
                                             <p className="location">{weatherData.location}</p>
 
                                             <div className="weather-data">
